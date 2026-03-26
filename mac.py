@@ -2,13 +2,13 @@ import matplotlib.pyplot as plt
 import math
 
 # CRJ-1000
-S = 131.75 # wing area m^2
-b = 41.06  # wing span m
-AR = 9.7  # aspect ratio
-taper = 0.2529  # taper ratio
-cRoot = 6.756  # root chord m
-cTip = 1.709  # tip chord m
-sweep = 0.537  # wing sweep rad
+S = 77.39 # wing area [m^2]
+b = 26.17  # wing span [m]
+AR = 8.85  # aspect ratio
+taper = 0.24  # taper ratio
+cRoot = 5.89  # root chord [m]
+cTip = 1.4  # tip chord [m[]
+sweep = 30 * (math.pi/180)  # wing sweep [rad]
 
 def graph(line, colour):
     x, y = line
