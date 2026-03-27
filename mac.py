@@ -3,11 +3,11 @@ import math
 
 # CRJ-1000
 S = 77.39 # wing area [m^2]
-b = 26.17  # wing span [m]
-AR = 8.85  # aspect ratio
-taper = 0.24  # taper ratio
-cRoot = 5.89  # root chord [m]
-cTip = 1.4  # tip chord [m[]
+b = 26.175  # wing span [m]
+AR = 8.852961  # aspect ratio
+taper = 0.238129  # taper ratio
+cRoot = 5.887979  # root chord [m]
+cTip = 1.402098  # tip chord [m[]
 sweep = 30 * (math.pi/180)  # wing sweep [rad]
 
 def graph(line, colour):
@@ -32,13 +32,13 @@ diagonal = ([0, b/2], [(-cTip -cRoot), (-(b/2)*math.tan(sweep) + 0.25*cTip + 0.7
 
 # graphing wing planform
 graph(root, "black")
-# graph(rootEx, "#8ace00")
+graph(rootEx, "#8ace00")
 graph(quarterC, "#8ace00")
 graph(tip, "black")
-# graph(tipEx, "#8ace00")
+graph(tipEx, "#8ace00")
 graph(leadingE, "black")
 graph(trailingE, "black")
-# graph(diagonal, "#8ace00")
+graph(diagonal, "#8ace00")
 graph(halfC, "#8ace00")
 
 # finding MAC
@@ -61,4 +61,5 @@ graph(MAC, "#8ace00")
 
 print(f"MAC: {yLE - yTE:.2f}, Position: ({xMAC:.2f}, {(yLE):.2f})")
 print(f"AC Position: ({xMAC:.2f}, {(yAC):.2f})")
+
 plt.show()
