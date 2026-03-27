@@ -2,12 +2,13 @@
 from __future__ import annotations
 
 from pathlib import Path
+from datetime import datetime
 from dataclasses import dataclass
 import re
 import openpyxl
 import matplotlib.pyplot as plt
 
-EXCEL_FILE = "data.xlsx"
+EXCEL_FILE = "data_(3).xlsx"
 REF_SHEET = "1.b) Ref_ac"
 MAIN_SHEET = "1.c)"
 
@@ -315,7 +316,13 @@ def print_checks(data: dict, paths: dict) -> None:
     print(f"  point         : {a_point.name}")
 
 
-def plot_loading_diagram(data: dict, paths: dict, output_file: str = "loading_diagram.png") -> None:
+def plot_loading_diagram(
+    data: dict,
+    paths: dict,
+    output_folder: Path,
+    timestamp_for_title: str,
+    output_file: Path,
+) -> None:
     fig, ax = plt.subplots(figsize=(12, 8))
 
     # -------- Cargo: blue --------
@@ -336,13 +343,14 @@ def plot_loading_diagram(data: dict, paths: dict, output_file: str = "loading_di
     # -------- Window seats: orange --------
     window_label_added = False
     for name, path in paths["window_paths"]:
-        # only plot the part after cargo is complete
         x = [p.x_percent_mac for p in path[2:]]
         y = [p.weight_kg for p in path[2:]]
         ax.plot(
             x, y,
             color="tab:orange",
+            marker="x",
             linewidth=1.8,
+            markersize=4,
             alpha=0.95,
             label="Window seats" if not window_label_added else None
         )
@@ -351,13 +359,14 @@ def plot_loading_diagram(data: dict, paths: dict, output_file: str = "loading_di
     # -------- Aisle seats: green --------
     aisle_label_added = False
     for name, path in paths["aisle_paths"]:
-        # each aisle path starts after full window loading
         x = [p.x_percent_mac for p in path[-(data["n_rows"] + 1):]]
         y = [p.weight_kg for p in path[-(data["n_rows"] + 1):]]
         ax.plot(
             x, y,
             color="tab:green",
+            marker="s",
             linewidth=1.6,
+            markersize=3.5,
             alpha=0.9,
             label="Aisle seats" if not aisle_label_added else None
         )
@@ -371,7 +380,9 @@ def plot_loading_diagram(data: dict, paths: dict, output_file: str = "loading_di
         ax.plot(
             x, y,
             color="tab:red",
+            marker="D",
             linewidth=2.0,
+            markersize=5,
             alpha=0.95,
             label="Fuel" if not fuel_label_added else None
         )
@@ -394,23 +405,41 @@ def plot_loading_diagram(data: dict, paths: dict, output_file: str = "loading_di
 
     ax.set_xlabel("x_cg [%MAC]")
     ax.set_ylabel("Mass [kg]")
-    ax.set_title("Loading Diagram")
+    ax.set_title(f"Loading Diagram - {timestamp_for_title}")
     ax.grid(True, alpha=0.3)
     ax.legend()
     fig.tight_layout()
+
+    output_folder.mkdir(parents=True, exist_ok=True)
     fig.savefig(output_file, dpi=300)
     plt.show()
 
 
 def main() -> None:
-    excel_path = Path(__file__).with_name(EXCEL_FILE)
+    script_dir = Path(__file__).resolve().parent
+    excel_path = script_dir / EXCEL_FILE
     if not excel_path.exists():
         raise FileNotFoundError(f"Could not find '{EXCEL_FILE}' next to this script.")
+
+    timestamp = datetime.now()
+    timestamp_for_title = timestamp.strftime("%Y-%m-%d %H:%M:%S")
+    timestamp_for_filename = timestamp.strftime("%Y-%m-%d_%H-%M-%S")
+
+    output_folder = script_dir / "Loading Diagrams"
+    output_file = output_folder / f"loading_diagram_{timestamp_for_filename}.png"
 
     data = read_inputs(str(excel_path))
     paths = build_all_paths(data)
     print_checks(data, paths)
-    plot_loading_diagram(data, paths)
+    plot_loading_diagram(
+        data=data,
+        paths=paths,
+        output_folder=output_folder,
+        timestamp_for_title=timestamp_for_title,
+        output_file=output_file,
+    )
+
+    print(f"\nSaved loading diagram to: {output_file}")
 
 
 if __name__ == "__main__":
