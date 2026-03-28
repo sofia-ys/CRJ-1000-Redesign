@@ -27,7 +27,7 @@ Lambda_quarterC = 33.76 * np.pi/180 # quarter chord sweep of wing
 sweep = 30 * np.pi/180  # wing LE sweep
 
 # fuselage parameters 
-b_f = 2.69  # fuselage external diameter
+b_f = 2.695  # fuselage external diameter
 S_net = S - 14.90  # S - projection of central wing part inside fuselage, value from technical drawing [m^2]
 l_h = 16.06566  # wing ac to tail ac length
 r = 2 * l_h / b  # tail length to wingspan ratio [-]
