@@ -4,7 +4,7 @@ import numpy as np
 M_c = 0.82  # mach number at cruise speed, value from Janes [-]
 beta_cr = np.sqrt(1 - M_c**2)  # compressability factor [-]
 V_app = 72.022  # approach speed [m/s]
-# a_app =  # speed of sound at approach altitude [-]
+a_app =  np.sqrt(1.4*287.05*288.15) # speed of sound at approach altitude [-]
 M_app = V_app/a_app # Mach equivalent of appraoch speed
 beta_app = np.sqrt(1 - M_app**2)  # compressability factor for approach [-]
 
@@ -32,11 +32,11 @@ S_net = S - 14.90  # S - projection of central wing part inside fuselage, value 
 l_h = 16.06566  # wing ac to tail ac length
 r = 2 * l_h / b  # tail length to wingspan ratio [-]
 m_tv = 2 * 5.026099606 / b # distance between root chord of wing and horizontal tail plane, value from technical drawing [m]
-# l_fn = 0  # length from nose to wing root tip
+l_fn = 17.053  # length from nose to wing root tip
 
 # nacelle parameters
-# b_n =  #
-# l_n =  #
+b_n = 1.55  # nacelle diameter [m]
+l_n = 11.74354 # length from wing root to nacelle centre [m]
 
 
 # lift rate coefficient calcs (short for calculation btw)
@@ -47,8 +47,8 @@ def lift_rate_coef(A, beta, eta, Lambda_halfC):  # A, eta, Lambda_halfC are geom
     return C_L_alpha
 
 # lift rate coefficient of the horizontal tail at cruise [-]
-C_L_alpha_h = lift_rate_coef(A_h, beta_cr, eta_h, Lambda_halfC_h)
-print(f"Lift rate coefficient of the horizontal tail: {C_L_alpha_h}")
+C_L_alpha_h_cr = lift_rate_coef(A_h, beta_cr, eta_h, Lambda_halfC_h)
+print(f"Lift rate coefficient of the horizontal tail: {C_L_alpha_h_cr}")
 
 # lift rate coefficient of the aircraft less tail [-]
 
@@ -73,7 +73,13 @@ def downwash(beta):  # beta is a speed dependent parameter
     return depsilon_dalpha
 
 depsilon_dalpha = downwash(beta_cr)  # downwash while at cruise condition
-print(f"Wing downwash gradient: {depsilon_dalpha}")
+print(f"Wing downwash gradient: {depsilon_dalpha}") 
+
+C_L_alpha = C_L_alpha_A_h_cr + 1 * (S_h/S) * (1 - depsilon_dalpha) * C_L_alpha_h_cr
+C_L_alpha_simple = 2 * np.pi * A / (A + 2)
+
+print("\n-------------DATCOM vs. Estimation-------------")
+print(f"SANITY CHECK: {C_L_alpha} vs {C_L_alpha_simple}")
 
 print("\n---------Aerodynamic Centre at Cruise----------")
 # ac of aircraft less tail
@@ -82,16 +88,14 @@ def ac_fuselage(beta):
     C_L_alpha_A_h, _ = lift_rate_aircraft_less_tail(beta)  # only speed dependent variable is C_L_alpha_A_h
     x_ac_f1 = (-1.8 * b_f**2 * l_fn)/(C_L_alpha_A_h * S * MAC)  # fuselage contribution 1
     x_ac_f2 = (0.273 * b_f * (S/b) * (b - b_f) * np.tan(Lambda_quarterC)) / ((1 + taper) * (S/b)**2 * (b + 2.15 * b_f))  # fuselage contribution 2
-    x_ac_f = x_ac_f1 + x_ac_f2  # fuselage contribution
+    x_ac_f = x_ac_f1 + x_ac_f2  # total fuselage contribution
     return x_ac_f
 
 x_ac_f_cr = ac_fuselage(beta_cr)
 print(f"Fuselage contribution: {x_ac_f_cr}")
 
 # printing the cruise conditions to find wing speed dependent variable (from graph)
-print(f"Beta * A: {beta_cr * A}")
-print(f"taper: {taper}")
-print(f"Lambda_Beta: {(np.atan2(np.tan(sweep), beta_cr)) * (180/np.pi)}")
+print(f"GRAPH VALUES: Beta * A: {beta_cr * A}, taper: {taper}, Lambda_Beta: {(np.atan2(np.tan(sweep), beta_cr)) * (180/np.pi)}")
 x_ac_w_cr = 0.37  # wing contribution
 print(f"Wing contribution: {x_ac_w_cr}")
 
@@ -112,10 +116,8 @@ x_ac_f_app = ac_fuselage(beta_app)
 print(f"Fuselage contribution: {x_ac_f_app}")
 
 # printing the cruise conditions to find wing speed dependent variable (from graph)
-print(f"Beta * A: {beta_cr * A}")
-print(f"taper: {taper}")
-print(f"Lambda_Beta: {(np.atan2(np.tan(sweep), beta_cr)) * (180/np.pi)}")
-# x_ac_w_app = 0  # wing contribution
+print(f"GRAPH VALUES: Beta * A: {beta_app * A}, taper: {taper}, Lambda_Beta: {(np.atan2(np.tan(sweep), beta_app)) * (180/np.pi)}")
+x_ac_w_app = 0.445  # wing contribution
 print(f"Wing contribution: {x_ac_w_app}")
 
 x_ac_n_app = nacelle_contribution(beta_app)
