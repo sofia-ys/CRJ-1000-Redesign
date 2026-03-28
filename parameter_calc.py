@@ -48,7 +48,10 @@ def lift_rate_coef(A, beta, eta, Lambda_halfC):  # A, eta, Lambda_halfC are geom
 
 # lift rate coefficient of the horizontal tail at cruise [-]
 C_L_alpha_h_cr = lift_rate_coef(A_h, beta_cr, eta_h, Lambda_halfC_h)
-print(f"Lift rate coefficient of the horizontal tail: {C_L_alpha_h_cr}")
+print(f"Lift rate coefficient of the horizontal tail at cruise: {C_L_alpha_h_cr}")
+
+C_L_alpha_h_app = lift_rate_coef(A_h, beta_app, eta_h, Lambda_halfC_h)
+print(f"Lift rate coefficient of the horizontal tail at approach: {C_L_alpha_h_app}")
 
 # lift rate coefficient of the aircraft less tail [-]
 
@@ -58,9 +61,15 @@ def lift_rate_aircraft_less_tail(beta):  # beta is a speed dependent parameter
     return C_L_alpha_A_h, C_L_alpha_w
 
 C_L_alpha_A_h_cr, C_L_alpha_w_cr = lift_rate_aircraft_less_tail(beta_cr)  # cruise values
-print(f"Lift rate coefficient of the aircraft less tail: {C_L_alpha_A_h_cr}")
-print(f"Wing contribution: {C_L_alpha_w_cr}")
-print(f"Fuselage contribution: {C_L_alpha_A_h_cr - C_L_alpha_w_cr}")
+print(f"Lift rate coefficient of the aircraft less tail at cruise: {C_L_alpha_A_h_cr}")
+print(f"Wing contribution at cruise: {C_L_alpha_w_cr}")
+print(f"Fuselage contribution at cruise: {C_L_alpha_A_h_cr - C_L_alpha_w_cr}")
+
+C_L_alpha_A_h_app, C_L_alpha_w_app = lift_rate_aircraft_less_tail(beta_app)  # approach values
+print(f"Lift rate coefficient of the aircraft less tail at approach: {C_L_alpha_A_h_app}")
+print(f"Wing contribution at approach: {C_L_alpha_w_app}")
+print(f"Fuselage contribution at approach: {C_L_alpha_A_h_app - C_L_alpha_w_app}")
+
 
 print("\n------------Wing Downwash Gradient-------------")
 # wing downwash gradient
