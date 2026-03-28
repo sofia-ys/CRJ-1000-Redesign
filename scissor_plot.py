@@ -24,7 +24,7 @@ de_da  = 0.33297873068133915          # Downwash gradient (dε/dα)
 # Controllability Parameters (Approach/landing — flaps fully extended)
 Cm_ac  = -0.15         # Pitching moment coefficient of aircraft-less-tail about its a.c.
                         # (typically large negative with flaps extended)
-CL_Ah  = 2.5           # Lift coefficient of aircraft-less-tail at minimum approach speed
+CL_Ah  = 3.7669426401827257   # Lift coefficient of aircraft-less-tail at minimum approach speed
 CL_h   = -0.8          # Maximum (negative) lift coefficient the tail can generate
                         # (negative because the tail pushes down to counteract nose-down Cmac)
  
