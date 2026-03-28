@@ -1,23 +1,23 @@
 import matplotlib.pyplot as plt
 import math
 
-# # CRJ-1000 wing parameters
-# S = 77.39 # wing area [m^2]
-# b = 26.175  # wing span [m]
-# AR = 8.852961  # aspect ratio
-# taper = 0.238129  # taper ratio
-# cRoot = 5.887979  # root chord [m]
-# cTip = 1.402098  # tip chord [m[]
-# sweep = 30 * (math.pi/180)  # wing sweep [rad]
+# CRJ-1000 wing parameters
+S = 77.39 # wing area [m^2]
+b = 26.175  # wing span [m]
+AR = 8.852961  # aspect ratio
+taper = 0.238129  # taper ratio
+cRoot = 5.887979  # root chord [m]
+cTip = 1.402098  # tip chord [m[]
+sweep = 30 * (math.pi/180)  # wing sweep [rad]
 
-# CRJ-1000 horizontal tail parameters
-S = 15.91  # total horizontal tail area [m^2]
-b = 8.54  # total horizontal tail span [m]
-A = b**2 / S  # aspect ratio of horizontal tail [-]
-taper = 0.4242 # taper ratio of horizontal tail [-]
-cRoot = 2.66719 # root chord of horizontal tail [m]
-cTip = 1.131443378 # tip chord of horizontal tail [m]
-sweep = 33.76 * (math.pi/180)  # wing sweep of horizontal tail [rad]
+# # CRJ-1000 horizontal tail parameters
+# S = 15.91  # total horizontal tail area [m^2]
+# b = 8.54  # total horizontal tail span [m]
+# A = b**2 / S  # aspect ratio of horizontal tail [-]
+# taper = 0.4242 # taper ratio of horizontal tail [-]
+# cRoot = 2.66719 # root chord of horizontal tail [m]
+# cTip = 1.131443378 # tip chord of horizontal tail [m]
+# sweep = 33.76 * (math.pi/180)  # wing sweep of horizontal tail [rad]
 
 def graph(line, colour):
     x, y = line
