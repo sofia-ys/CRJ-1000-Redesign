@@ -32,7 +32,7 @@ S_net = S - 14.90  # S - projection of central wing part inside fuselage, value 
 l_h = 16.06566  # wing ac to tail ac length
 r = 2 * l_h / b  # tail length to wingspan ratio [-]
 m_tv = 2 * 5.026099606 / b # distance between root chord of wing and horizontal tail plane, value from technical drawing [m]
-l_fn = 17.053  # length from nose to wing root tip
+l_fn = 17.08091448  # length from nose to wing root tip
 
 # nacelle parameters
 b_n = 1.55  # nacelle diameter [m]
