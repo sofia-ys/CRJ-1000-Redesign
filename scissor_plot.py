@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 # INPUT VARIABLES (Replace with your data)
 # ==========================================
 
+
 # General Parameters
 x_ac_cruise = 0.26384118583091387 # Aerodynamic center of aircraft-less-tail (fraction of MAC)
 x_ac_approach = 0.26490730691191755
@@ -14,6 +15,11 @@ mac = 4.11  # MAC
 l_h = 16.06566495  # distance from tail AC to Wing AC
 lh_c = l_h/mac         # Tail moment arm normalized by MAC
 Vh_V = 1        # Tail speed ratio (Vh / V)
+V_app = 72.022  # approach speed [m/s]
+MTOW    = 38995 # [kg]   maximum take-off weight (conservative for approach sizing)
+rho_app = 1.225   # [kg/m³] ISA sea-level density at approach altitude
+g       = 9.80665   # [m/s²]
+S = 77.39 # total wing area [m^2]
 
 # Stability Parameters (Cruise Condition)
 SM     = 0.05          # Required stability margin (fraction of MAC, e.g. 5%)
@@ -24,7 +30,8 @@ de_da  = 0.33297873068133915          # Downwash gradient (dε/dα)
 # Controllability Parameters (Approach/landing — flaps fully extended)
 Cm_ac  = -0.15         # Pitching moment coefficient of aircraft-less-tail about its a.c.
                         # (typically large negative with flaps extended)
-CL_Ah  = 3.7669426401827257   # Lift coefficient of aircraft-less-tail at minimum approach speed
+CL_Ah  = 1.5553   # Lift coefficient of aircraft-less-tail at minimum approach speed
+CL_Ah = (2 * MTOW * g) / (rho_app * V_app**2 * S)
 CL_h   = -0.8          # Maximum (negative) lift coefficient the tail can generate
                         # (negative because the tail pushes down to counteract nose-down Cmac)
  

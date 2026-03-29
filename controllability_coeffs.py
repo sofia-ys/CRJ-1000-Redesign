@@ -3,15 +3,9 @@ import numpy as np
 # ============================================================
 # CALCULATION OF  Cm_ac,  CL_Ah,  CL_h
 # for the scissor-plot controllability curve
-#
-# Paste below the existing aerodynamic_parameters.py so all
-# previously computed variables are already in scope:
-#   V_app, beta_app, A_h, A, S, b, MAC, Lambda_quarterC,
-#   taper, b_f, l_fn, b_n, l_n, S_net,
-#   lift_rate_coef(), lift_rate_aircraft_less_tail(),
-#   downwash(), ac_fuselage(), nacelle_contribution()
 # ============================================================
 
+"""SOFIAS PARAMETER CALC"""
 import numpy as np
 
 # speed parameters
@@ -162,7 +156,7 @@ Cm0_airfoil = -0.12   # [-]  zero-lift pitching moment of wing airfoil
                     #      typical range: −0.02 (symmetric) to −0.12 (high camber)
 
 # --- Flap geometry (from your wing design module) ---
-Swf_S       = 1.01   # [-]  flapped wing area / total wing area  (TE flaps only)
+Swf_S       = 1   # [-]  flapped wing area / total wing area  (TE flaps only)
 delta_Cl_max = 0.5  # [-]  2-D airfoil ΔCl_max at full landing flap deflection
 c_prime_c   = 1   # [-]  chord ratio with flap extended; = 1.0 for non-Fowler flaps
 
