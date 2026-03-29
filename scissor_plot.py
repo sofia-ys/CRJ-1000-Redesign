@@ -33,7 +33,11 @@ Cm_ac  = -0.15         # Pitching moment coefficient of aircraft-less-tail about
 CL_Ah = (2 * MTOW * g) / (rho_app * V_app**2 * S) # Lift coefficient of aircraft-less-tail at minimum approach speed
 CL_h   = -0.8          # Maximum (negative) lift coefficient the tail can generate
                         # (negative because the tail pushes down to counteract nose-down Cmac)
- 
+cm_.25/Deltaf_Clmax = 0.385  #The moment coeff. around the quarter chord over Clmax and the flap deflection. For double-slotted flap it's around 0.385
+Clmax
+quarter_chord_sweep = 0
+
+
 # Operational CG range (from your loading diagram, fraction of MAC)
 cg_fwd = 0.15          # Most forward operational CG
 cg_aft = 0.35          # Most aft operational CG
@@ -65,6 +69,9 @@ Sh_S_stability = np.clip((x_cg_range - x_ac_cruise + SM) / K_stab,0.0, None)
 #    Clip at 0: negative Sh/S is physically meaningless.
 # ------------------------------------------------------------------
 K_cont = CL_h * lh_c * (Vh_V ** 2)           # negative, because CL_h < 0
+
+cm_.25/Clmax = cm_.25/Deltaf_Clmax*(1 - (1.5*cos(quarter_chord_sweep)/Clmax) #Assuming there are no slats in the wing
+
 Sh_S_controllability_raw = (Cm_ac + CL_Ah * (x_cg_range - x_ac_approach)) / K_cont
 Sh_S_controllability = np.clip(Sh_S_controllability_raw, 0.0, None)
  
