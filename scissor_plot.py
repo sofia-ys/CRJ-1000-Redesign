@@ -22,6 +22,7 @@ MTOW    = 38995 # [kg]   maximum take-off weight (conservative for approach sizi
 rho_app = 1.225   # [kg/m³] ISA sea-level density at approach altitude
 g       = 9.80665   # [m/s²]
 S = 77.39 # total wing area [m^2]
+b = controllability_coeffs.b
 
 # Stability Parameters (Cruise Condition)
 SM     = 0.05          # Required stability margin (fraction of MAC, e.g. 5%)
@@ -81,6 +82,8 @@ Sh_S_stability = np.clip((x_cg_range - x_ac_cruise + SM) / K_stab,0.0, None)
 
 takeoff_angle = 9 #Degrees
 takeoff_angle = takeoff_angle * m.pi/180
+flap_deflection = 45 #Flap deflection in degrees
+flap_deflection = flap_deflection * m.pi/180
 
 ###WING
 A_wing = S
@@ -90,24 +93,34 @@ Cm_ac_w = C_m0_airfoil * (A_wing * m.cos(mystery_sweep)**2/(A_wing + 2*m.cos(mys
 
 ###FUSELAGE
 
-def calculate_CL_a():
-    pass
 
-def calculate_
+def calculate_CL_a(A, HalfChordSweep, MachNum):
+    #MAKE SURE HALFCHORD IS IN RADIANS!!!
+    Beta = m.sqrt(1 - MachNum^2)
+    eta_h = 0.95
+    2*m.pi*A/(2 + m.sqrt(4 + (A*Beta/eta_h)**2 * (1 + m.tan(HalfChordSweep)**2)/Beta**2))
+    return CL_a
 
-CL_a_w_lowspeed
-CL_a_Ah_lowspeed = CL_a_w_lowspeed
-C_L0 =
+def calculate_CL_a_Ah(CL_a_w, b_f, S_net, b, S):
+    return CL_a_w * (1 + 2.15*b_f/b) * S_net/S + m.pi/2 * b_f**2/S
+
+
+C_L0 = 0 #CHANGE THIS LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 b_f = controllability_coeffs.b_f
-h_f = 2.5
-l_f = controllability_coeffs.l_fn
+S_net = S - b_f*mac #rough estimate
+halfchordsweep = controllability_coeffs.Lambda_halfC
+CL_a_w_lowspeed = calculate_CL_a(A_wing, halfchordsweep, 72.022/343)
+CL_a_Ah_lowspeed = calculate_CL_a_Ah(CL_a_w_lowspeed, b_f, S_net, b, S)
+
+h_f = 2.5 #estimate for fuselage height
+l_f = controllability_coeffs.l_fn #fuselage length
 Cm_fus = -1.8*(1 - 2.5*b_f/l_f) * m.pi*b_f*h_f*l_f/(4*S*mac) * C_L0 / CL_a_Ah_lowspeed
 
 ###FLAPS
-cdash_mac = 1.075 #The total span of the wings with flaps/the airfoil MAC
-mu_1 = 0.235 #Assuming 30 degree flap angles
-mu_2 =
-mu_3 =
+cdash_mac = 1.35 #The total span of the wings with flaps/the airfoil MAC
+mu_1 = 0.157 #Assuming 45 degree flap angles
+mu_2 = 0.4
+mu_3 = 0.04
 deltaClmax = #How much Cl the flaps add
 C_L_landing = C_L0 +
 Swf_S = #ratio between flapped wing area and ref wing area

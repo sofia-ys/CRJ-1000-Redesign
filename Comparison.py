@@ -12,7 +12,6 @@ import loading_diagram_Part2 as part2
 PART1_EXCEL = "data_(4).xlsx"
 PART2_EXCEL = "data_(4).xlsx"
 
-
 def plot_family(
     ax,
     paths_group,
