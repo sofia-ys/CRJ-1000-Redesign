@@ -498,6 +498,16 @@ def main(saveplot: bool = True) -> None:
 
     print(f"\nSaved loading diagram to: {output_file}")
 
+    def print_extreme_cg_values(paths: dict, data: dict) -> None:
+        ext = get_extremes(paths)
+        _, p_fwd = ext["most_forward"]
+        _, p_aft = ext["most_aft"]
+        
+        print("\n========== CG EXTREMES ==========")
+        print(f"Most forward CG: {p_fwd.x_percent_mac:.3f} %MAC")
+        print(f"Most aft CG    : {p_aft.x_percent_mac:.3f} %MAC")
 
+
+    print_extreme_cg_values(paths, data)
 if __name__ == "__main__":
     main(False)
