@@ -322,6 +322,7 @@ def plot_loading_diagram(
     output_folder: Path,
     timestamp_for_title: str,
     output_file: Path | None,
+    save_plot: bool = True,
 ) -> None:
     fig, ax = plt.subplots(figsize=(12, 8))
 
@@ -389,9 +390,42 @@ def plot_loading_diagram(
         fuel_label_added = True
 
     # -------- Key markers --------
-    oew = make_point("OEW", data["oew"], paths["oew_x"], data)
+    oew_label = data.get("oew_plot_label", "OEW")
+    oew_x_plot = data.get("oew_plot_x", paths["oew_x"])
+    oew_weight_plot = data.get("oew_plot_weight", data["oew"])
+    oew_xytext = data.get("oew_plot_xytext", (8, 8))
+    oew = make_point(oew_label, oew_weight_plot, oew_x_plot, data)
+    named_plot_points = {oew_label: oew}
     ax.scatter([oew.x_percent_mac], [oew.weight_kg], color="black", s=70, zorder=5)
-    ax.annotate("OEW", (oew.x_percent_mac, oew.weight_kg), xytext=(8, 8), textcoords="offset points")
+    ax.annotate(oew_label, (oew.x_percent_mac, oew.weight_kg), xytext=oew_xytext, textcoords="offset points")
+
+    for extra_point in data.get("extra_plot_points", []):
+        point = make_point(
+            extra_point["label"],
+            extra_point["weight"],
+            extra_point["x_from_front_m"],
+            data,
+        )
+        named_plot_points[extra_point["label"]] = point
+        ax.scatter([point.x_percent_mac], [point.weight_kg], color="black", s=55, zorder=5)
+        ax.annotate(
+            extra_point["label"],
+            (point.x_percent_mac, point.weight_kg),
+            xytext=extra_point.get("xytext", (8, 8)),
+            textcoords="offset points",
+        )
+
+    for extra_line in data.get("extra_plot_lines", []):
+        start = named_plot_points[extra_line["from"]]
+        end = named_plot_points[extra_line["to"]]
+        ax.plot(
+            [start.x_percent_mac, end.x_percent_mac],
+            [start.weight_kg, end.weight_kg],
+            color=extra_line.get("color", "tab:blue"),
+            linestyle=extra_line.get("linestyle", "-"),
+            linewidth=extra_line.get("linewidth", 2.0),
+            zorder=4,
+        )
 
     ext = get_extremes(paths)
     _, p_fwd = ext["most_forward"]
@@ -430,7 +464,7 @@ def plot_loading_diagram(
     ax.legend()
     fig.tight_layout()
     
-    if output_file is not None:
+    if save_plot:
         output_folder.mkdir(parents=True, exist_ok=True)
         fig.savefig(output_file, dpi=300)
     plt.show()
@@ -448,9 +482,8 @@ def main(saveplot: bool = True) -> None:
     timestamp_for_filename = timestamp.strftime("%Y-%m-%d_%H-%M-%S")
 
     output_folder = script_dir / "Loading Diagrams"
-    
-    if saveplot == False:output_file = None
-    else: output_file = output_folder / f"loading_diagram_{timestamp_for_filename}.png"
+
+    output_file = output_folder / f"loading_diagram_{timestamp_for_filename}.png"
     data = read_inputs(str(excel_path))
     paths = build_all_paths(data)
     print_checks(data, paths)
@@ -460,10 +493,11 @@ def main(saveplot: bool = True) -> None:
         output_folder=output_folder,
         timestamp_for_title=timestamp_for_title,
         output_file=output_file,
+        save_plot=saveplot,
     )
 
     print(f"\nSaved loading diagram to: {output_file}")
 
 
 if __name__ == "__main__":
-    main()
+    main(False)
