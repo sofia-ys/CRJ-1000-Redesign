@@ -2,6 +2,8 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+import math as m
+import controllability_coeffs
 
 # ==========================================
 # INPUT VARIABLES (Replace with your data)
@@ -33,8 +35,7 @@ Cm_ac  = -0.15         # Pitching moment coefficient of aircraft-less-tail about
 CL_Ah = (2 * MTOW * g) / (rho_app * V_app**2 * S) # Lift coefficient of aircraft-less-tail at minimum approach speed
 CL_h   = -0.8          # Maximum (negative) lift coefficient the tail can generate
                         # (negative because the tail pushes down to counteract nose-down Cmac)
-cm_.25/Deltaf_Clmax = 0.385  #The moment coeff. around the quarter chord over Clmax and the flap deflection. For double-slotted flap it's around 0.385
-Clmax
+#cm_.25/Deltaf_Clmax = 0.385  #The moment coeff. around the quarter chord over Clmax and the flap deflection. For double-slotted flap it's around 0.385
 quarter_chord_sweep = 0
 
 
@@ -54,6 +55,7 @@ x_cg_range = np.linspace(0.0, 0.6, 200)
 #
 #    Uses x_ac at CRUISE speed.
 # ------------------------------------------------------------------
+Cm_nacelle =
 K_stab = (CL_ah / CL_aAh) * (1 - de_da) * lh_c * (Vh_V ** 2)
 Sh_S_stability = np.clip((x_cg_range - x_ac_cruise + SM) / K_stab,0.0, None)
  
@@ -68,13 +70,60 @@ Sh_S_stability = np.clip((x_cg_range - x_ac_cruise + SM) / K_stab,0.0, None)
 #    as CG moves aft.
 #    Clip at 0: negative Sh/S is physically meaningless.
 # ------------------------------------------------------------------
-K_cont = CL_h * lh_c * (Vh_V ** 2)           # negative, because CL_h < 0
 
-cm_.25/Clmax = cm_.25/Deltaf_Clmax*(1 - (1.5*cos(quarter_chord_sweep)/Clmax) #Assuming there are no slats in the wing
+###NEEDED:
 
-Sh_S_controllability_raw = (Cm_ac + CL_Ah * (x_cg_range - x_ac_approach)) / K_cont
+
+#Estimation for cm_.25 number 1
+#cm_ac/Clmax = cm_.25/Deltaf_Clmax*(1 - (1.5*cos(quarter_chord_sweep)/Clmax) #Assuming there are no slats in the wing
+
+#Estimation of cm_.25 number 2
+
+takeoff_angle = 9 #Degrees
+takeoff_angle = takeoff_angle * m.pi/180
+
+###WING
+A_wing = S
+mystery_sweep = quarter_chord_sweep
+C_m0_airfoil = controllability_coeffs.Cm0_airfoil
+Cm_ac_w = C_m0_airfoil * (A_wing * m.cos(mystery_sweep)**2/(A_wing + 2*m.cos(mystery_sweep)))
+
+###FUSELAGE
+
+def calculate_CL_a():
+    pass
+
+def calculate_
+
+CL_a_w_lowspeed
+CL_a_Ah_lowspeed = CL_a_w_lowspeed
+C_L0 =
+b_f = controllability_coeffs.b_f
+h_f = 2.5
+l_f = controllability_coeffs.l_fn
+Cm_fus = -1.8*(1 - 2.5*b_f/l_f) * m.pi*b_f*h_f*l_f/(4*S*mac) * C_L0 / CL_a_Ah_lowspeed
+
+###FLAPS
+cdash_mac = 1.075 #The total span of the wings with flaps/the airfoil MAC
+mu_1 = 0.235 #Assuming 30 degree flap angles
+mu_2 =
+mu_3 =
+deltaClmax = #How much Cl the flaps add
+C_L_landing = C_L0 +
+Swf_S = #ratio between flapped wing area and ref wing area
+b1 = C_L_landing + deltaClmax*(1 - Swf_S)   #Bracket 1 of the eq
+b2 = -mu_1*deltaClmax*cdash_mac - b1*1/8*cdash_mac*(cdash_mac - 1)
+Cm_flaps = mu_2 * b2 + 0.7*A_wing/(1 + 2/A_wing)*mu_3*deltaClmax*m.tan(quarter_chord_sweep)
+Cm_flaps_transformed = Cm_ac + C_L_landing * (0.25 - x_ac_approach/mac) #apply transformation as seen on controllability hidden slide 20
+
+Cm_ac_total = Cm_ac_w + Cm_fus + Cm_flaps_transformed + Cm_nacelle
+
+
+
+K_cont = CL_h * lh_c * (Vh_V ** 2)          # negative, because CL_h < 0
+Sh_S_controllability_raw = (Cm_ac_total + CL_Ah * (x_cg_range - x_ac_approach)) / K_cont
 Sh_S_controllability = np.clip(Sh_S_controllability_raw, 0.0, None)
- 
+
 # ------------------------------------------------------------------
 # 3. REQUIRED Sh/S FOR THE GIVEN CG RANGE
 #    - Stability is critical at the MOST AFT CG position.
