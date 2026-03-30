@@ -403,14 +403,29 @@ def plot_loading_diagram(
     ax.annotate("Most forward", (p_fwd.x_percent_mac, p_fwd.weight_kg), xytext=(8, -14), textcoords="offset points")
 
     ax.scatter([p_aft.x_percent_mac], [p_aft.weight_kg], color="red", s=75, zorder=6)
-    ax.annotate("Most aft", (p_aft.x_percent_mac, p_aft.weight_kg), xytext=(8, 8), textcoords="offset points")
+    ax.annotate(
+        "Most aft",
+        (p_aft.x_percent_mac, p_aft.weight_kg),
+        xytext=(-12, 14),
+        ha="right",
+        textcoords="offset points",
+    )
 
-    ax.axvline(min_cg_limit, color="dimgray", linestyle="--", linewidth=1.5, label="Min CG - 2%")
-    ax.axvline(max_cg_limit, color="gray", linestyle="--", linewidth=1.5, label="Max CG + 2%")
+    ax.axvline(min_cg_limit, color="green", linestyle="--", linewidth=1.5)
+    ax.axvline(max_cg_limit, color="green", linestyle="--", linewidth=1.5)
+
+    all_x_values = [min_cg_limit, max_cg_limit]
+    for key in ["cargo_paths", "window_paths", "aisle_paths", "fuel_paths"]:
+        for _, path in paths[key]:
+            all_x_values.extend(p.x_percent_mac for p in path)
+    x_min = min(all_x_values)
+    x_max = max(all_x_values)
+    x_margin = 0.05 * (x_max - x_min) if x_max > x_min else max(1.0, 0.05 * abs(x_max))
+    ax.set_xlim(x_min - x_margin, x_max + x_margin)
 
     ax.set_xlabel("x_cg [%MAC]")
     ax.set_ylabel("Mass [kg]")
-    ax.set_title(f"Loading Diagram - {timestamp_for_title}")
+    ax.set_title(f"Loading Diagram")
     ax.grid(True, alpha=0.3)
     ax.legend()
     fig.tight_layout()
