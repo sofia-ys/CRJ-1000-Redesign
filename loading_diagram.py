@@ -8,7 +8,7 @@ import re
 import openpyxl
 import matplotlib.pyplot as plt
 
-EXCEL_FILE = "data_(4).xlsx"
+EXCEL_FILE = "AircraftSuperExcel.xlsx"
 REF_SHEET = "1.b) Ref_ac"
 MAIN_SHEET = "1.c)"
 
@@ -321,7 +321,7 @@ def plot_loading_diagram(
     paths: dict,
     output_folder: Path,
     timestamp_for_title: str,
-    output_file: Path,
+    output_file: Path | None,
 ) -> None:
     fig, ax = plt.subplots(figsize=(12, 8))
 
@@ -396,6 +396,8 @@ def plot_loading_diagram(
     ext = get_extremes(paths)
     _, p_fwd = ext["most_forward"]
     _, p_aft = ext["most_aft"]
+    min_cg_limit = p_fwd.x_percent_mac - 2.0
+    max_cg_limit = p_aft.x_percent_mac + 2.0
 
     ax.scatter([p_fwd.x_percent_mac], [p_fwd.weight_kg], color="red", s=75, zorder=6)
     ax.annotate("Most forward", (p_fwd.x_percent_mac, p_fwd.weight_kg), xytext=(8, -14), textcoords="offset points")
@@ -403,19 +405,24 @@ def plot_loading_diagram(
     ax.scatter([p_aft.x_percent_mac], [p_aft.weight_kg], color="red", s=75, zorder=6)
     ax.annotate("Most aft", (p_aft.x_percent_mac, p_aft.weight_kg), xytext=(8, 8), textcoords="offset points")
 
+    ax.axvline(min_cg_limit, color="dimgray", linestyle="--", linewidth=1.5, label="Min CG - 2%")
+    ax.axvline(max_cg_limit, color="gray", linestyle="--", linewidth=1.5, label="Max CG + 2%")
+
     ax.set_xlabel("x_cg [%MAC]")
     ax.set_ylabel("Mass [kg]")
     ax.set_title(f"Loading Diagram - {timestamp_for_title}")
     ax.grid(True, alpha=0.3)
     ax.legend()
     fig.tight_layout()
-
-    output_folder.mkdir(parents=True, exist_ok=True)
-    fig.savefig(output_file, dpi=300)
+    
+    if output_file is not None:
+        output_folder.mkdir(parents=True, exist_ok=True)
+        fig.savefig(output_file, dpi=300)
     plt.show()
 
 
-def main() -> None:
+def main(saveplot: bool = True) -> None:
+
     script_dir = Path(__file__).resolve().parent
     excel_path = script_dir / EXCEL_FILE
     if not excel_path.exists():
@@ -426,8 +433,9 @@ def main() -> None:
     timestamp_for_filename = timestamp.strftime("%Y-%m-%d_%H-%M-%S")
 
     output_folder = script_dir / "Loading Diagrams"
-    output_file = output_folder / f"loading_diagram_{timestamp_for_filename}.png"
-
+    
+    if saveplot == False:output_file = None
+    else: output_file = output_folder / f"loading_diagram_{timestamp_for_filename}.png"
     data = read_inputs(str(excel_path))
     paths = build_all_paths(data)
     print_checks(data, paths)
