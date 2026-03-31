@@ -37,13 +37,49 @@ CL_Ah = (2 * MTOW * g) / (rho_app * V_app**2 * S) # Lift coefficient of aircraft
 CL_h   = -0.8          # Maximum (negative) lift coefficient the tail can generate
                         # (negative because the tail pushes down to counteract nose-down Cmac)
 #cm_.25/Deltaf_Clmax = 0.385  #The moment coeff. around the quarter chord over Clmax and the flap deflection. For double-slotted flap it's around 0.385
-quarter_chord_sweep = 0
+quarter_chord_sweep = controllability_coeffs.Lambda_quarterC
+halfchordsweep = controllability_coeffs.Lambda_halfC
+taper_ratio = controllability_coeffs.taper
+A_wing = b**2/S
+b_f = controllability_coeffs.b_f
+S_net = S - b_f*mac #rough estimate
 
+#nacelle stuff
+b_n = 1.7
+l_n = 10.88
+l_fn = 17.09
+h_f = 2.5 #estimate for fuselage height
 
 # Operational CG range (from your loading diagram, fraction of MAC)
 cg_fwd = 0.15          # Most forward operational CG
 cg_aft = 0.35          # Most aft operational CG
- 
+
+C_L0 = 0.15
+
+
+def calculate_x_nacelle(k_n, CL_a_Ah):
+    return 2*k_n*b_n**2*l_n/(S*mac*CL_a_Ah)
+
+def calculate_x_fus_control(C_L0, CL_a_Ah):
+    return -1.8 * (1 - 2.5 * b_f / l_f) * m.pi * b_f * h_f * l_f / (4 * S * mac) * C_L0 / CL_a_Ah
+
+def calculate_x_fus_stab(CL_a_Ah):
+    #l_fn is the distance between fuselage and nacelle
+    x_1 = -1.8/CL_a_Ah * b_f*h_f*l_fn/(S*mac)
+    x_2 = 0.273/(1 + taper_ratio) * b_f * S/b * (b - b_f)/(mac**2*(b - 2.15*b_f)) * m.tan(quarter_chord_sweep)
+    return x_1 + x_2
+
+
+def calculate_CL_a(A, HalfChordSweep, MachNum):
+    #MAKE SURE HALFCHORD IS IN RADIANS!!!
+    Beta = m.sqrt(1 - MachNum**2)
+    eta_h = 0.95
+    return 2*m.pi*A/(2 + m.sqrt(4 + (A*Beta/eta_h)**2 * (1 + m.tan(HalfChordSweep)**2)/Beta**2))
+
+def calculate_CL_a_Ah(CL_a_w, b_f, S_net, b, S):
+    return CL_a_w * (1 + 2.15*b_f/b) * S_net/S + m.pi/2 * b_f**2/S
+
+
 # ==========================================
 # SCISSOR PLOT CALCULATIONS
 # ==========================================
@@ -56,10 +92,21 @@ x_cg_range = np.linspace(0.0, 0.6, 200)
 #
 #    Uses x_ac at CRUISE speed.
 # ------------------------------------------------------------------
-Cm_nacelle =
+
+mach_num_cruise = 0.8
+
+CL_a_w_cruise = calculate_CL_a(A_wing, quarter_chord_sweep, mach_num_cruise)
+CL_a_Ah_cruise = calculate_CL_a_Ah(CL_a_w_cruise, b_f, S_net, b, S)
+x_nacelle_cruise = calculate_x_nacelle(-2.5, CL_a_Ah_cruise)
+x_fus_cruise = calculate_x_fus_stab(CL_a_Ah_cruise)
+x_ac_cruise = 0.25 + x_fus_cruise + x_nacelle_cruise
+
+#Cm_nacelle = calculate_cm_nacelle(-2.5, b_n, l_n, S, mac, CL_a_Ah_cruise) #CHANGE THIS LATERRRRRRRRR!!!!!!!!!!!!
 K_stab = (CL_ah / CL_aAh) * (1 - de_da) * lh_c * (Vh_V ** 2)
 Sh_S_stability = np.clip((x_cg_range - x_ac_cruise + SM) / K_stab,0.0, None)
- 
+
+
+
 # ------------------------------------------------------------------
 # 2. CONTROLLABILITY CURVE  (approach, flaps extended, most-fwd CG limit)
 #
@@ -86,33 +133,20 @@ flap_deflection = 45 #Flap deflection in degrees
 flap_deflection = flap_deflection * m.pi/180
 
 ###WING
-A_wing = S
 mystery_sweep = quarter_chord_sweep
 C_m0_airfoil = controllability_coeffs.Cm0_airfoil
 Cm_ac_w = C_m0_airfoil * (A_wing * m.cos(mystery_sweep)**2/(A_wing + 2*m.cos(mystery_sweep)))
 
+
+
+
 ###FUSELAGE
 
 
-def calculate_CL_a(A, HalfChordSweep, MachNum):
-    #MAKE SURE HALFCHORD IS IN RADIANS!!!
-    Beta = m.sqrt(1 - MachNum^2)
-    eta_h = 0.95
-    2*m.pi*A/(2 + m.sqrt(4 + (A*Beta/eta_h)**2 * (1 + m.tan(HalfChordSweep)**2)/Beta**2))
-    return CL_a
 
-def calculate_CL_a_Ah(CL_a_w, b_f, S_net, b, S):
-    return CL_a_w * (1 + 2.15*b_f/b) * S_net/S + m.pi/2 * b_f**2/S
-
-
-C_L0 = 0 #CHANGE THIS LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-b_f = controllability_coeffs.b_f
-S_net = S - b_f*mac #rough estimate
-halfchordsweep = controllability_coeffs.Lambda_halfC
 CL_a_w_lowspeed = calculate_CL_a(A_wing, halfchordsweep, 72.022/343)
 CL_a_Ah_lowspeed = calculate_CL_a_Ah(CL_a_w_lowspeed, b_f, S_net, b, S)
 
-h_f = 2.5 #estimate for fuselage height
 l_f = controllability_coeffs.l_fn #fuselage length
 Cm_fus = -1.8*(1 - 2.5*b_f/l_f) * m.pi*b_f*h_f*l_f/(4*S*mac) * C_L0 / CL_a_Ah_lowspeed
 
@@ -121,15 +155,15 @@ cdash_mac = 1.35 #The total span of the wings with flaps/the airfoil MAC
 mu_1 = 0.157 #Assuming 45 degree flap angles
 mu_2 = 0.4
 mu_3 = 0.04
-deltaClmax = #How much Cl the flaps add
-C_L_landing = C_L0 +
-Swf_S = #ratio between flapped wing area and ref wing area
-b1 = C_L_landing + deltaClmax*(1 - Swf_S)   #Bracket 1 of the eq
+deltaClmax = 0.6 #REVISE THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #How much Cl the flaps add
+C_L_w_lowspeed = C_L0 + takeoff_angle * CL_a_Ah_lowspeed
+Swf_S = 0.25#ratio between flapped wing area and ref wing area
+b1 = C_L_w_lowspeed + deltaClmax*(1 - Swf_S)   #Bracket 1 of the eq
 b2 = -mu_1*deltaClmax*cdash_mac - b1*1/8*cdash_mac*(cdash_mac - 1)
 Cm_flaps = mu_2 * b2 + 0.7*A_wing/(1 + 2/A_wing)*mu_3*deltaClmax*m.tan(quarter_chord_sweep)
-Cm_flaps_transformed = Cm_ac + C_L_landing * (0.25 - x_ac_approach/mac) #apply transformation as seen on controllability hidden slide 20
+Cm_flaps_transformed = Cm_ac + C_L_w_lowspeed * (0.25 - x_ac_approach/mac) #apply transformation as seen on controllability hidden slide 20
 
-Cm_ac_total = Cm_ac_w + Cm_fus + Cm_flaps_transformed + Cm_nacelle
+Cm_ac_total = Cm_ac_w + Cm_fus + Cm_flaps_transformed
 
 
 
