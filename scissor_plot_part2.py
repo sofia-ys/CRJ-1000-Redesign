@@ -31,7 +31,7 @@ CL_aAh = 6.423476455793314           # Lift curve slope of the aircraft-less-tai
 de_da  = 0.33297873068133915          # Downwash gradient (dε/dα)
  
 # Controllability Parameters (Approach/landing — flaps fully extended)
-Cm_ac  = -0.15         # Pitching moment coefficient of aircraft-less-tail about its a.c.
+#Cm_ac  = -0.15         # Pitching moment coefficient of aircraft-less-tail about its a.c.
                         # (typically large negative with flaps extended)
 CL_Ah = (2 * MTOW * g) / (rho_app * V_app**2 * S) * 1.2# Lift coefficient of aircraft-less-tail at minimum approach speed
 CL_h   = -0.8          # Maximum (negative) lift coefficient the tail can generate
@@ -99,7 +99,7 @@ CL_a_w_cruise = calculate_CL_a(A_wing, quarter_chord_sweep, mach_num_cruise)
 CL_a_Ah_cruise = calculate_CL_a_Ah(CL_a_w_cruise, b_f, S_net, b, S)
 x_nacelle_cruise = calculate_x_nacelle(-2.5, CL_a_Ah_cruise)
 x_fus_cruise = calculate_x_fus_stab(CL_a_Ah_cruise)
-x_ac_cruise = 0.25 + x_fus_cruise + x_nacelle_cruise
+x_ac_cruise = 0.37 + x_fus_cruise + x_nacelle_cruise
 
 #Cm_nacelle = calculate_cm_nacelle(-2.5, b_n, l_n, S, mac, CL_a_Ah_cruise) #CHANGE THIS LATERRRRRRRRR!!!!!!!!!!!!
 K_stab = (CL_ah / CL_aAh) * (1 - de_da) * lh_c * (Vh_V ** 2)
@@ -161,7 +161,7 @@ Swf_S = 0.25#ratio between flapped wing area and ref wing area
 b1 = C_L_w_lowspeed + deltaClmax*(1 - Swf_S)   #Bracket 1 of the eq
 b2 = -mu_1*deltaClmax*cdash_mac - b1*1/8*cdash_mac*(cdash_mac - 1)
 Cm_flaps = mu_2 * b2 + 0.7*A_wing/(1 + 2/A_wing)*mu_3*deltaClmax*m.tan(quarter_chord_sweep)
-Cm_flaps_transformed = Cm_ac + C_L_w_lowspeed * (0.25 - x_ac_approach) #apply transformation as seen on controllability hidden slide 20
+Cm_flaps_transformed = Cm_flaps + C_L_w_lowspeed * (0.25 - x_ac_approach) #apply transformation as seen on controllability hidden slide 20
 
 Cm_ac_total = Cm_ac_w + Cm_fus + Cm_flaps_transformed
 
@@ -199,12 +199,11 @@ ax.plot(x_cg_range, Sh_S_controllability,
 #     For a chosen Sh/S, the admissible CG window lies where:
 #       controllability curve  ≤  Sh/S  ≤  stability curve  (i.e. stab ≥ cont)
 ax.fill_between(x_cg_range,
-                Sh_S_controllability,
-                Sh_S_stability,
-                where=(Sh_S_stability >= Sh_S_controllability),
+                np.maximum(Sh_S_stability, Sh_S_controllability),
+                1.0, # Arbitrary upper boundary for shading
                 color='green', alpha=0.15,
                 label='Feasible design space')
- 
+
 # --- Operational CG range overlay ---
 ax.axvspan(cg_fwd, cg_aft,
            color='gray', alpha=0.25, label='Operational CG range')
