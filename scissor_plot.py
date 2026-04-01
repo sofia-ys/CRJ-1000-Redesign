@@ -93,7 +93,7 @@ x_cg_range = np.linspace(0.0, 0.6, 200)
 #    Uses x_ac at CRUISE speed.
 # ------------------------------------------------------------------
 
-mach_num_cruise = 0.8
+mach_num_cruise = 0.82
 
 CL_a_w_cruise = calculate_CL_a(A_wing, quarter_chord_sweep, mach_num_cruise)
 CL_a_Ah_cruise = calculate_CL_a_Ah(CL_a_w_cruise, b_f, S_net, b, S)
