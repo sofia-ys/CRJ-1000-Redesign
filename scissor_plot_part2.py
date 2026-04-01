@@ -51,8 +51,8 @@ l_fn = 17.09
 h_f = 2.5 #estimate for fuselage height
 
 # Operational CG range (from your loading diagram, fraction of MAC)
-cg_fwd = 0.15          # Most forward operational CG
-cg_aft = 0.35          # Most aft operational CG
+cg_fwd = 0.10096          # Most forward operational CG
+cg_aft = 0.52028          # Most aft operational CG
 
 C_L0 = 0.15
 
