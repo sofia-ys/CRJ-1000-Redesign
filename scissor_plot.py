@@ -45,7 +45,7 @@ b_f = controllability_coeffs.b_f
 S_net = S - 14.90 #rough estimate
 
 #nacelle stuff
-b_n = 1.7
+b_n = 1.56 #1.56 from the aiport manual, not 1.7 (???)
 l_n = 10.88
 l_fn = 17.09
 h_f = 2.5 #estimate for fuselage height
@@ -102,7 +102,7 @@ x_fus_cruise = calculate_x_fus_stab(CL_a_Ah_cruise)
 x_ac_cruise = 0.37 + x_fus_cruise + x_nacelle_cruise
 
 #Cm_nacelle = calculate_cm_nacelle(-2.5, b_n, l_n, S, mac, CL_a_Ah_cruise) #CHANGE THIS LATERRRRRRRRR!!!!!!!!!!!!
-K_stab = (CL_ah / CL_aAh) * (1 - de_da) * lh_c * (Vh_V ** 2)
+K_stab = (CL_ah / CL_a_Ah_cruise) * (1 - de_da) * lh_c * (Vh_V ** 2)  # used a hardcoded value, changed it to CL_a_Ah_cruise
 Sh_S_stability = np.clip((x_cg_range - x_ac_cruise + SM) / K_stab,0.0, None)
 
 
@@ -152,21 +152,33 @@ x_nacelle_approach = calculate_x_nacelle(-2.5, CL_a_Ah_lowspeed)
 x_fus_approach = calculate_x_fus_stab(CL_a_Ah_lowspeed)
 
 # Calculate total x_ac for approach using the 0.445 wing contribution
+# i got 0.34 ?
 x_ac_approach = 0.445 + x_fus_approach + x_nacelle_approach
 
 l_f = controllability_coeffs.l_fn #fuselage length
 Cm_fus = -1.8*(1 - 2.5*b_f/l_f) * m.pi*b_f*h_f*l_f/(4*S*mac) * C_L0 / CL_a_Ah_lowspeed
 
 ###FLAPS
+
+# validate
 cdash_mac = 1.35 #The total span of the wings with flaps/the airfoil MAC
-mu_1 = 0.157 #Assuming 45 degree flap angles
+
+#these mu values def are wrong
+mu_1 = 0.157 #Assuming 45 degree flap angles 
 mu_2 = 0.4
 mu_3 = 0.04
+
+#yes revise this
 deltaClmax = 0.6 #REVISE THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #How much Cl the flaps add
 C_L_w_lowspeed = C_L0 + takeoff_angle * CL_a_Ah_lowspeed
+
+#should be a bit higher
 Swf_S = 0.25#ratio between flapped wing area and ref wing area
+
 b1 = C_L_w_lowspeed + deltaClmax*(1 - Swf_S)   #Bracket 1 of the eq
 b2 = -mu_1*deltaClmax*cdash_mac - b1*1/8*cdash_mac*(cdash_mac - 1)
+
+
 Cm_flaps = mu_2 * b2 + 0.7*A_wing/(1 + 2/A_wing)*mu_3*deltaClmax*m.tan(quarter_chord_sweep)
 Cm_flaps_transformed = Cm_flaps + C_L_w_lowspeed * (0.25 - x_ac_approach) #apply transformation as seen on controllability hidden slide 20
 
