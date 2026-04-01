@@ -161,7 +161,7 @@ Swf_S = 0.25#ratio between flapped wing area and ref wing area
 b1 = C_L_w_lowspeed + deltaClmax*(1 - Swf_S)   #Bracket 1 of the eq
 b2 = -mu_1*deltaClmax*cdash_mac - b1*1/8*cdash_mac*(cdash_mac - 1)
 Cm_flaps = mu_2 * b2 + 0.7*A_wing/(1 + 2/A_wing)*mu_3*deltaClmax*m.tan(quarter_chord_sweep)
-Cm_flaps_transformed = Cm_ac + C_L_w_lowspeed * (0.25 - x_ac_approach/mac) #apply transformation as seen on controllability hidden slide 20
+Cm_flaps_transformed = Cm_ac + C_L_w_lowspeed * (0.25 - x_ac_approach) #apply transformation as seen on controllability hidden slide 20
 
 Cm_ac_total = Cm_ac_w + Cm_fus + Cm_flaps_transformed
 
