@@ -42,7 +42,7 @@ halfchordsweep = controllability_coeffs.Lambda_halfC
 taper_ratio = controllability_coeffs.taper
 A_wing = b**2/S
 b_f = controllability_coeffs.b_f
-S_net = S - b_f*mac #rough estimate
+S_net = S - 14.90 #rough estimate
 
 #nacelle stuff
 b_n = 1.7
