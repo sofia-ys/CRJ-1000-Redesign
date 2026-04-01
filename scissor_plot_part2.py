@@ -101,6 +101,7 @@ x_nacelle_cruise = calculate_x_nacelle(-2.5, CL_a_Ah_cruise)
 x_fus_cruise = calculate_x_fus_stab(CL_a_Ah_cruise)
 x_ac_cruise = 0.37 + x_fus_cruise + x_nacelle_cruise
 
+
 #Cm_nacelle = calculate_cm_nacelle(-2.5, b_n, l_n, S, mac, CL_a_Ah_cruise) #CHANGE THIS LATERRRRRRRRR!!!!!!!!!!!!
 K_stab = (CL_ah / CL_aAh) * (1 - de_da) * lh_c * (Vh_V ** 2)
 Sh_S_stability = np.clip((x_cg_range - x_ac_cruise + SM) / K_stab,0.0, None)
@@ -146,6 +147,13 @@ Cm_ac_w = C_m0_airfoil * (A_wing * m.cos(mystery_sweep)**2/(A_wing + 2*m.cos(mys
 
 CL_a_w_lowspeed = calculate_CL_a(A_wing, halfchordsweep, 72.022/343)
 CL_a_Ah_lowspeed = calculate_CL_a_Ah(CL_a_w_lowspeed, b_f, S_net, b, S)
+
+# Calculate fuselage and nacelle shifts using low-speed aerodynamics
+x_nacelle_approach = calculate_x_nacelle(-2.5, CL_a_Ah_lowspeed)
+x_fus_approach = calculate_x_fus_stab(CL_a_Ah_lowspeed)
+
+# Calculate total x_ac for approach using the 0.445 wing contribution
+x_ac_approach = 0.445 + x_fus_approach + x_nacelle_approach
 
 l_f = controllability_coeffs.l_fn #fuselage length
 Cm_fus = -1.8*(1 - 2.5*b_f/l_f) * m.pi*b_f*h_f*l_f/(4*S*mac) * C_L0 / CL_a_Ah_lowspeed
