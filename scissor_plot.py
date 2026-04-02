@@ -11,8 +11,6 @@ import controllability_coeffs
 
 
 # General Parameters
-x_ac_cruise = 0.26384118583091387 # Aerodynamic center of aircraft-less-tail (fraction of MAC)
-x_ac_approach = 0.26490730691191755
 mac = 4.11  # MAC
 l_h = 16.06566495  # distance from tail AC to Wing AC
 lh_c = l_h/mac         # Tail moment arm normalized by MAC
@@ -31,8 +29,6 @@ CL_aAh = 6.423476455793314           # Lift curve slope of the aircraft-less-tai
 de_da  = 0.33297873068133915          # Downwash gradient (dε/dα)
  
 # Controllability Parameters (Approach/landing — flaps fully extended)
-Cm_ac  = -0.15         # Pitching moment coefficient of aircraft-less-tail about its a.c.
-                        # (typically large negative with flaps extended)
 CL_Ah = (2 * MTOW * g) / (rho_app * V_app**2 * S) # Lift coefficient of aircraft-less-tail at minimum approach speed
 CL_h   = -0.8          # Maximum (negative) lift coefficient the tail can generate
                         # (negative because the tail pushes down to counteract nose-down Cmac)
@@ -46,12 +42,12 @@ S_net = S - 14.90 #rough estimate
 
 #nacelle stuff
 b_n = 1.56 #1.56 from the aiport manual, not 1.7 (???)
-l_n = 10.88
+l_n = -10.88
 l_fn = 17.09
-h_f = 2.5 #estimate for fuselage height
+h_f = 2.695 #estimate for fuselage height
 
 # Operational CG range (from your loading diagram, fraction of MAC)
-cg_fwd = -0.01035          # Most forward operational CG
+cg_fwd = 0.07          # Most forward operational CG
 cg_aft = 0.41573          # Most aft operational CG
 
 C_L0 = 0.15
@@ -83,7 +79,7 @@ def calculate_CL_a_Ah(CL_a_w, b_f, S_net, b, S):
 # ==========================================
 # SCISSOR PLOT CALCULATIONS
 # ==========================================
-x_cg_range = np.linspace(0.0, 0.6, 200)
+x_cg_range = np.linspace(0.0, 1, 200)
  
 # ------------------------------------------------------------------
 # 1. STABILITY CURVE  (cruise, flaps retracted, most-aft CG limit)
@@ -99,7 +95,7 @@ CL_a_w_cruise = calculate_CL_a(A_wing, quarter_chord_sweep, mach_num_cruise)
 CL_a_Ah_cruise = calculate_CL_a_Ah(CL_a_w_cruise, b_f, S_net, b, S)
 x_nacelle_cruise = calculate_x_nacelle(-2.5, CL_a_Ah_cruise)
 x_fus_cruise = calculate_x_fus_stab(CL_a_Ah_cruise)
-x_ac_cruise = 0.37 + x_fus_cruise + x_nacelle_cruise
+x_ac_cruise = 0.38 + x_fus_cruise + x_nacelle_cruise
 
 #Cm_nacelle = calculate_cm_nacelle(-2.5, b_n, l_n, S, mac, CL_a_Ah_cruise) #CHANGE THIS LATERRRRRRRRR!!!!!!!!!!!!
 K_stab = (CL_ah / CL_a_Ah_cruise) * (1 - de_da) * lh_c * (Vh_V ** 2)  # used a hardcoded value, changed it to CL_a_Ah_cruise
@@ -153,7 +149,7 @@ x_fus_approach = calculate_x_fus_stab(CL_a_Ah_lowspeed)
 
 # Calculate total x_ac for approach using the 0.445 wing contribution
 # i got 0.34 ?
-x_ac_approach = 0.445 + x_fus_approach + x_nacelle_approach
+x_ac_approach = 0.34 + x_fus_approach + x_nacelle_approach
 
 l_f = controllability_coeffs.l_fn #fuselage length
 Cm_fus = -1.8*(1 - 2.5*b_f/l_f) * m.pi*b_f*h_f*l_f/(4*S*mac) * C_L0 / CL_a_Ah_lowspeed
@@ -238,7 +234,7 @@ ax.set_xlabel(r'Center of gravity position  ($\bar{x}_{cg}$ / MAC)')
 # FIX 1: Sh/S is a tail AREA ratio, not a volume ratio
 ax.set_ylabel(r'Horizontal tail area ratio  ($S_h / S$)')
  
-ax.set_xlim([0.0, 0.6])
+ax.set_xlim([0.0, 1])
 ax.set_ylim([0.0, max(Sh_S_controllability[0], Sh_S_stability[-1]) * 1.2])
 ax.grid(True, linestyle=':', alpha=0.7)
 ax.legend(loc='upper right')
