@@ -162,6 +162,7 @@ Swf_S       = 1   # [-]  flapped wing area / total wing area  (TE flaps only)
 delta_Cl_max = 0.5  # [-]  2-D airfoil ΔCl_max at full landing flap deflection
 c_prime_c   = 1   # [-]  chord ratio with flap extended; = 1.0 for non-Fowler flaps
 
+'''TODO: check these values, not urgent'''
 # μ-factors from Torenbeek Fig G-16 and G-17  (graphical look-up required)
 mu1 = 1           # [-]  Fig G-16: f(c'/c, Swf/S)
 mu2 = 1           # [-]  Fig G-16: f(flap chord position x_f/c, c'/c)
@@ -192,7 +193,7 @@ print(f"Downwash gradient (app):       {depsilon_dalpha_app:.4f}  [-]")
 x_ac_f_app = ac_fuselage(beta_app)
 x_ac_n_app = nacelle_contribution(beta_app)
 # Wing contribution at approach from graph (update value as needed):
-x_ac_w_app = 0.445          # [-] fraction of MAC  (from graph at approach beta*A)
+x_ac_w_app = 0.325          # [-] fraction of MAC  (from graph at approach beta*A), the new value
 x_ac_app   = x_ac_w_app + x_ac_f_app + x_ac_n_app
 print(f"x_ac aircraft-less-tail (app): {x_ac_app:.4f}  (fraction of MAC)")
 
