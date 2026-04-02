@@ -3,7 +3,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import math as m
-import controllability_coeffs
+from controllability_coeffs import * 
 
 # ==========================================
 # INPUT VARIABLES (Replace with your data)
@@ -12,7 +12,7 @@ import controllability_coeffs
 
 # General Parameters
 mac = 4.11  # MAC
-l_h = 16.06566495  # distance from tail AC to Wing AC
+l_h = 16.40  # distance from tail AC to Wing AC, value changed, from technical drawing
 lh_c = l_h/mac         # Tail moment arm normalized by MAC
 Vh_V = 1        # Tail speed ratio (Vh / V)
 V_app = 72.022  # approach speed [m/s]
@@ -20,23 +20,23 @@ MTOW    = 38995 # [kg]   maximum take-off weight (conservative for approach sizi
 rho_app = 1.225   # [kg/m³] ISA sea-level density at approach altitude
 g       = 9.80665   # [m/s²]
 S = 77.39 # total wing area [m^2]
-b = controllability_coeffs.b
 
 # Stability Parameters (Cruise Condition)
 SM     = 0.05          # Required stability margin (fraction of MAC, e.g. 5%)
-CL_ah  = 4.6793850598197535           # Lift curve slope of the horizontal tail (1/rad)
-CL_aAh = 6.423476455793314           # Lift curve slope of the aircraft-less-tail (1/rad)
+CL_ah  = lift_rate_coef(A_h, beta_app, eta_h, Lambda_halfC_h)           # Lift curve slope of the horizontal tail (1/rad)
+CL_aAh, _ = lift_rate_aircraft_less_tail(beta_cr)           # Lift curve slope of the aircraft-less-tail (1/rad)
+de_da  = downwash(beta_cr)          # Downwash gradient (dε/dα)
  
 # Controllability Parameters (Approach/landing — flaps fully extended)
 CL_Ah = (2 * MTOW * g) / (rho_app * V_app**2 * S) *1.2 # Lift coefficient of aircraft-less-tail at minimum approach speed
 CL_h   = -0.8          # Maximum (negative) lift coefficient the tail can generate
                         # (negative because the tail pushes down to counteract nose-down Cmac)
 #cm_.25/Deltaf_Clmax = 0.385  #The moment coeff. around the quarter chord over Clmax and the flap deflection. For double-slotted flap it's around 0.385
-quarter_chord_sweep = controllability_coeffs.Lambda_quarterC
-halfchordsweep = controllability_coeffs.Lambda_halfC
-taper_ratio = controllability_coeffs.taper
+quarter_chord_sweep = Lambda_quarterC
+halfchordsweep = Lambda_halfC
+taper_ratio = taper
 A_wing = b**2/S *1.25
-b_f = controllability_coeffs.b_f
+b_f = b_f
 S_net = S - 14.90 #rough estimate
 
 #nacelle stuff
@@ -144,7 +144,7 @@ flap_deflection = flap_deflection * m.pi/180
 
 ###WING
 mystery_sweep = quarter_chord_sweep
-C_m0_airfoil = controllability_coeffs.Cm0_airfoil
+C_m0_airfoil = Cm0_airfoil
 Cm_ac_w = C_m0_airfoil * (A_wing * m.cos(mystery_sweep)**2/(A_wing + 2*m.cos(mystery_sweep)))
 
 
@@ -164,7 +164,7 @@ x_fus_approach = calculate_x_fus_stab(CL_a_Ah_lowspeed)
 # Calculate total x_ac for approach using 0.4 from torenbeek bigass formula
 x_ac_approach = 0.4 + x_fus_approach + x_nacelle_approach
 
-l_f = controllability_coeffs.l_fn #fuselage length
+l_f = l_fn #fuselage length
 Cm_fus = -1.8*(1 - 2.5*b_f/l_f) * m.pi*b_f*h_f*l_f/(4*S*mac) * C_L0 / CL_a_Ah_lowspeed
 
 
