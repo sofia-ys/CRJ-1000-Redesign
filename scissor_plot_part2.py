@@ -107,6 +107,8 @@ CL_a_w_cruise = calculate_CL_a(A_wing, quarter_chord_sweep, mach_num_cruise)
 CL_a_Ah_cruise = calculate_CL_a_Ah(CL_a_w_cruise, b_f, S_net, b, S)
 x_nacelle_cruise = calculate_x_nacelle(-2.5, CL_a_Ah_cruise)
 x_fus_cruise = calculate_x_fus_stab(CL_a_Ah_cruise)
+
+#torenbeek bigass formula 0.43 due to effective aspect ratio change 
 x_ac_cruise = 0.43 + x_fus_cruise + x_nacelle_cruise
 
 #Cm_nacelle = calculate_cm_nacelle(-2.5, b_n, l_n, S, mac, CL_a_Ah_cruise) #CHANGE THIS LATERRRRRRRRR!!!!!!!!!!!!
@@ -159,8 +161,7 @@ CL_a_Ah_lowspeed = calculate_CL_a_Ah(CL_a_w_lowspeed, b_f, S_net, b, S)
 x_nacelle_approach = calculate_x_nacelle(-2.5, CL_a_Ah_lowspeed)
 x_fus_approach = calculate_x_fus_stab(CL_a_Ah_lowspeed)
 
-# Calculate total x_ac for approach using the 0.445 wing contribution
-# i got 0.34 ?
+# Calculate total x_ac for approach using 0.4 from torenbeek bigass formula
 x_ac_approach = 0.4 + x_fus_approach + x_nacelle_approach
 
 l_f = controllability_coeffs.l_fn #fuselage length
@@ -190,10 +191,8 @@ b2 = -mu_1*deltaClmax*cdash_mac - b1*1/8*cdash_mac*(cdash_mac - 1)
 
 
 Cm_flaps = mu_2 * b2 + 0.7*A_wing/(1 + 2/A_wing)*mu_3*deltaClmax*m.tan(quarter_chord_sweep)
-Cm_flaps_transformed = Cm_flaps + C_L_w_lowspeed * (0.25 - x_ac_approach) #apply transformation as seen on controllability hidden slide 20
-
-Cm_ac_total = Cm_ac_w + Cm_fus + Cm_flaps_transformed
-
+Cm_c4_total = Cm_ac_w + Cm_fus + Cm_flaps
+Cm_ac_total = Cm_c4_total - CL_Ah * (x_ac_approach - 0.25)
 
 K_cont = CL_h * lh_c * (Vh_V ** 2)          # negative, because CL_h < 0
 Sh_S_controllability_raw = (Cm_ac_total + CL_Ah * (x_cg_range - x_ac_approach)) / K_cont
