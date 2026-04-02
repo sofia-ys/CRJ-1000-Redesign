@@ -454,7 +454,7 @@ def plot_loading_diagram(
             all_x_values.extend(p.x_percent_mac for p in path)
     x_min = min(all_x_values)
     x_max = max(all_x_values)
-    x_margin = 0.05 * (x_max - x_min) if x_max > x_min else max(1.0, 0.05 * abs(x_max))
+    x_margin = 0.02 * (x_max - x_min) if x_max > x_min else max(1.0, 0.02 * abs(x_max))
     ax.set_xlim(x_min - x_margin, x_max + x_margin)
 
     ax.set_xlabel("x_cg [%MAC]")
