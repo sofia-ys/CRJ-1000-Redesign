@@ -47,8 +47,8 @@ l_fn = 17.09
 h_f = 2.695 #estimate for fuselage height
 
 # Operational CG range (from your loading diagram, fraction of MAC)
-cg_fwd = 0.07          # Most forward operational CG
-cg_aft = 0.41573          # Most aft operational CG
+cg_fwd = 0.13419          # Most forward operational CG
+cg_aft = 0.52525          # Most aft operational CG
 
 C_L0 = 0.15
 
@@ -154,6 +154,8 @@ x_ac_approach = 0.34 + x_fus_approach + x_nacelle_approach
 l_f = controllability_coeffs.l_fn #fuselage length
 Cm_fus = -1.8*(1 - 2.5*b_f/l_f) * m.pi*b_f*h_f*l_f/(4*S*mac) * C_L0 / CL_a_Ah_lowspeed
 
+
+
 ###FLAPS
 
 # validate
@@ -162,14 +164,14 @@ cdash_mac = 1.35 #The total span of the wings with flaps/the airfoil MAC
 #these mu values def are wrong
 mu_1 = 0.157 #Assuming 45 degree flap angles 
 mu_2 = 0.4
-mu_3 = 0.04
+mu_3 = 0.0
 
 #yes revise this
-deltaClmax = 0.6 #REVISE THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #How much Cl the flaps add
+deltaClmax = 1.3 #REVISE THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #How much Cl the flaps add
 C_L_w_lowspeed = C_L0 + takeoff_angle * CL_a_Ah_lowspeed
 
 #should be a bit higher
-Swf_S = 0.25#ratio between flapped wing area and ref wing area
+Swf_S = 0.45#ratio between flapped wing area and ref wing area
 
 b1 = C_L_w_lowspeed + deltaClmax*(1 - Swf_S)   #Bracket 1 of the eq
 b2 = -mu_1*deltaClmax*cdash_mac - b1*1/8*cdash_mac*(cdash_mac - 1)
@@ -199,6 +201,75 @@ min_Sh_S_cont = Sh_S_controllability[idx_fwd]
 required_Sh_S = max(min_Sh_S_stab, min_Sh_S_cont)
 driver = "Controllability" if min_Sh_S_cont >= min_Sh_S_stab else "Stability"
  
+print("\n" + "="*60)
+print("FULL PARAMETER SUMMARY FOR LATEX REPORT")
+print("="*60)
+
+print("\n--- Wing AC base values (from Fig E-10 interpolation) ---")
+print(f"Cruise:   beta*A = {m.sqrt(1-mach_num_cruise**2) * A_wing:.3f}, wing AC base = 0.384")
+print(f"Approach: beta*A = {72.022/343 * A_wing:.3f}, wing AC base = 0.340")
+
+print("\n--- Fuselage contributions to x_ac ---")
+x_fus_1_cruise = -1.8/CL_a_Ah_cruise * b_f*h_f*l_fn/(S*mac)
+x_fus_2_cruise = 0.273/(1 + taper_ratio) * b_f * S/b * (b - b_f)/(mac**2*(b - 2.15*b_f)) * m.tan(quarter_chord_sweep)
+x_fus_1_app = -1.8/CL_a_Ah_lowspeed * b_f*h_f*l_fn/(S*mac)
+x_fus_2_app = 0.273/(1 + taper_ratio) * b_f * S/b * (b - b_f)/(mac**2*(b - 2.15*b_f)) * m.tan(quarter_chord_sweep)
+print(f"Cruise:   f1 = {x_fus_1_cruise:.4f}, f2 = {x_fus_2_cruise:.4f}, total = {x_fus_cruise:.4f}")
+print(f"Approach: f1 = {x_fus_1_app:.4f}, f2 = {x_fus_2_app:.4f}, total = {x_fus_approach:.4f}")
+
+print("\n--- Nacelle contributions to x_ac ---")
+print(f"Cruise:   {x_nacelle_cruise:.4f}  (positive = stabilizing = correct for rear engines)")
+print(f"Approach: {x_nacelle_approach:.4f}")
+print(f"l_n = {l_n} (negative = nacelle exit aft of wing quarter-chord)")
+print(f"k_n = -2.5, b_n = {b_n}")
+
+print("\n--- Total x_ac ---")
+print(f"Cruise:   {x_ac_cruise:.4f}  (wing 0.384 + fus {x_fus_cruise:.4f} + nac {x_nacelle_cruise:.4f})")
+print(f"Approach: {x_ac_approach:.4f}  (wing 0.340 + fus {x_fus_approach:.4f} + nac {x_nacelle_approach:.4f})")
+
+print("\n--- Lift rate coefficients ---")
+print(f"CL_ah (cruise):       {CL_ah:.4f} rad^-1")
+print(f"CL_a_Ah (cruise):     {CL_a_Ah_cruise:.4f} rad^-1")
+print(f"  wing contribution:  {CL_a_w_cruise:.4f} rad^-1")
+print(f"  fus correction:     {CL_a_Ah_cruise - CL_a_w_cruise:.4f} rad^-1")
+print(f"CL_a_Ah (approach):   {CL_a_Ah_lowspeed:.4f} rad^-1")
+print(f"  wing contribution:  {CL_a_w_lowspeed:.4f} rad^-1")
+print(f"  fus correction:     {CL_a_Ah_lowspeed - CL_a_w_lowspeed:.4f} rad^-1")
+
+print("\n--- Downwash gradient ---")
+print(f"de/da (cruise): {de_da:.4f}")
+
+print("\n--- Stability curve parameters ---")
+print(f"SM: {SM}")
+print(f"Vh/V: {Vh_V}")
+print(f"lh/c: {lh_c:.4f}")
+print(f"K_stab: {K_stab:.4f}")
+
+print("\n--- Controllability parameters ---")
+print(f"V_app: {V_app} m/s")
+print(f"CL_Ah: {CL_Ah:.4f}")
+print(f"CL_h:  {CL_h}")
+print(f"K_cont: {CL_h * lh_c * Vh_V**2:.4f}")
+
+print("\n--- Cm_ac contributions ---")
+print(f"Clean wing Cm_ac_w:     {Cm_ac_w:.4f}")
+print(f"Fuselage Cm_fus:        {Cm_fus:.4f}")
+print(f"Flaps Cm_flaps (c/4):   {Cm_flaps:.4f}")
+print(f"Conversion to AC:       {-(CL_Ah * (x_ac_approach - 0.25)):.4f}  = -CL_Ah*(x_ac-0.25)")
+print(f"Total Cm_ac:            {Cm_ac_total:.4f}")
+
+print("\n--- CG range ---")
+print(f"Most forward CG: {cg_fwd:.5f} (fraction of MAC)")
+print(f"Most aft CG:     {cg_aft:.5f} (fraction of MAC)")
+
+print("\n--- Required tail size ---")
+print(f"Sh/S from stability at cg_aft:      {min_Sh_S_stab:.4f}")
+print(f"Sh/S from controllability at cg_fwd: {min_Sh_S_cont:.4f}")
+print(f"Required Sh/S (max of above):        {required_Sh_S:.4f}")
+print(f"Driven by: {driver}")
+print(f"Actual CRJ-1000 Sh/S: {15.91/77.39:.4f}  (Sh=15.91 m², S=77.39 m²)")
+print("="*60)
+
 # ==========================================
 # PLOTTING
 # ==========================================
