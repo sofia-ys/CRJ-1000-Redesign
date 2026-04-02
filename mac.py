@@ -8,7 +8,7 @@ AR = 8.852961  # aspect ratio
 taper = 0.238129  # taper ratio
 cRoot = 5.887979  # root chord [m]
 cTip = 1.402098  # tip chord [m[]
-sweep = 30 * (math.pi/180)  # wing sweep [rad]
+sweep = 25.7 * (math.pi/180)  # quarter chord wing sweep [rad]
 
 # # CRJ-1000 horizontal tail parameters
 # S = 15.91  # total horizontal tail area [m^2]
@@ -68,10 +68,6 @@ yAC = mQuarter * xMAC + cQuarter
 MAC = ([xMAC, xMAC], [(yLE), (yTE)])
 graph(MAC, "#8ace00")
 
-# finding sweep
-sweep_quarterC = math.atan2((quarterC[1][1] - quarterC[1][0]), (b/2)) * 180/(math.pi)
-
-print(f"MAC: {yLE - yTE:.2f}, Position: ({xMAC:.2f}, {(yLE):.2f})")
+print(f"MAC: {yLE - yTE:.2f}, LEMAC position: ({xMAC:.2f}, {(yLE):.2f})")
 print(f"AC Position: ({xMAC:.2f}, {(yAC):.2f})")
-print(f"Quarter chord sweep: {sweep_quarterC}")
 plt.show()
