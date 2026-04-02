@@ -198,6 +198,11 @@ min_Sh_S_stab = Sh_S_stability[idx_aft]
 min_Sh_S_cont = Sh_S_controllability[idx_fwd]
 required_Sh_S = max(min_Sh_S_stab, min_Sh_S_cont)
 driver = "Controllability" if min_Sh_S_cont >= min_Sh_S_stab else "Stability"
+
+x_fus_1_cruise = -1.8/CL_a_Ah_cruise * b_f*h_f*l_fn/(S*mac)
+x_fus_2_cruise = 0.273/(1 + taper_ratio) * b_f * S/b * (b - b_f)/(mac**2*(b - 2.15*b_f)) * m.tan(quarter_chord_sweep)
+x_fus_1_app = -1.8/CL_a_Ah_lowspeed * b_f*h_f*l_fn/(S*mac)
+x_fus_2_app = 0.273/(1 + taper_ratio) * b_f * S/b * (b - b_f)/(mac**2*(b - 2.15*b_f)) * m.tan(quarter_chord_sweep)
  
 print("\n" + "="*60)
 print("TABLE VALUES FOR ASSIGNMENT DELIVERABLE 3.3e)")
