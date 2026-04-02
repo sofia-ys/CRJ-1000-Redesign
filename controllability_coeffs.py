@@ -31,16 +31,16 @@ eta = 0.95  # airfoil efficiency, value from sead slides [-]
 Lambda_halfC = 21.1 * (np.pi/180)  # sweep angle at the half chord of the horizontal tail, value from technical drawings [rad] 
 MAC = 4.11  # mean aerodynamic chord [m]
 taper = 0.238129  # taper ratio
-Lambda_quarterC = 33.76 * np.pi/180 # quarter chord sweep of wing
-sweep = 30 * np.pi/180  # wing LE sweep
+Lambda_quarterC = 25.7 * np.pi/180 # quarter chord sweep of wing, value from technical drawing [rad]
+sweep_LE = 30 * np.pi/180  # wing LE sweep, value from technical drawing [rad]
 
 # fuselage parameters 
 b_f = 2.695  # fuselage external diameter
 S_net = S - 14.90  # S - projection of central wing part inside fuselage, value from technical drawing [m^2]
-l_h = 16.06566  # wing ac to tail ac length
+l_h = 16.40  # wing ac to tail ac length, value from technical drawing [m]
 r = 2 * l_h / b  # tail length to wingspan ratio [-]
 m_tv = 2 * 5.026099606 / b # distance between root chord of wing and horizontal tail plane, value from technical drawing [m]
-l_fn = 17.053  # length from nose to wing root tip
+l_fn = 17.08091448  # length from nose to wing root tip
 
 # nacelle parameters
 b_n = 1.55  # nacelle diameter [m]
@@ -56,7 +56,10 @@ def lift_rate_coef(A, beta, eta, Lambda_halfC):  # A, eta, Lambda_halfC are geom
 
 # lift rate coefficient of the horizontal tail at cruise [-]
 C_L_alpha_h_cr = lift_rate_coef(A_h, beta_cr, eta_h, Lambda_halfC_h)
-print(f"Lift rate coefficient of the horizontal tail: {C_L_alpha_h_cr}")
+print(f"Lift rate coefficient of the horizontal tail at cruise: {C_L_alpha_h_cr}")
+
+C_L_alpha_h_app = lift_rate_coef(A_h, beta_app, eta_h, Lambda_halfC_h)
+print(f"Lift rate coefficient of the horizontal tail at approach: {C_L_alpha_h_app}")
 
 # lift rate coefficient of the aircraft less tail [-]
 
@@ -66,9 +69,15 @@ def lift_rate_aircraft_less_tail(beta):  # beta is a speed dependent parameter
     return C_L_alpha_A_h, C_L_alpha_w
 
 C_L_alpha_A_h_cr, C_L_alpha_w_cr = lift_rate_aircraft_less_tail(beta_cr)  # cruise values
-print(f"Lift rate coefficient of the aircraft less tail: {C_L_alpha_A_h_cr}")
-print(f"Wing contribution: {C_L_alpha_w_cr}")
-print(f"Fuselage contribution: {C_L_alpha_A_h_cr - C_L_alpha_w_cr}")
+print(f"Lift rate coefficient of the aircraft less tail at cruise: {C_L_alpha_A_h_cr}")
+print(f"Wing contribution at cruise: {C_L_alpha_w_cr}")
+print(f"Fuselage contribution at cruise: {C_L_alpha_A_h_cr - C_L_alpha_w_cr}")
+
+C_L_alpha_A_h_app, C_L_alpha_w_app = lift_rate_aircraft_less_tail(beta_app)  # approach values
+print(f"Lift rate coefficient of the aircraft less tail at approach: {C_L_alpha_A_h_app}")
+print(f"Wing contribution at approach: {C_L_alpha_w_app}")
+print(f"Fuselage contribution at approach: {C_L_alpha_A_h_app - C_L_alpha_w_app}")
+
 
 print("\n------------Wing Downwash Gradient-------------")
 # wing downwash gradient
@@ -103,8 +112,8 @@ x_ac_f_cr = ac_fuselage(beta_cr)
 print(f"Fuselage contribution: {x_ac_f_cr}")
 
 # printing the cruise conditions to find wing speed dependent variable (from graph)
-print(f"GRAPH VALUES: Beta * A: {beta_cr * A}, taper: {taper}, Lambda_Beta: {(np.atan2(np.tan(sweep), beta_cr)) * (180/np.pi)}")
-x_ac_w_cr = 0.37  # wing contribution
+print(f"GRAPH VALUES: Beta * A: {beta_cr * A}, taper: {taper}, Lambda_Beta: {(np.atan2(np.tan(Lambda_quarterC), beta_cr)) * (180/np.pi)}")
+x_ac_w_cr = 0.36  # wing contribution  # from the graph, value changed
 print(f"Wing contribution: {x_ac_w_cr}")
 
 def nacelle_contribution(beta):
@@ -124,8 +133,8 @@ x_ac_f_app = ac_fuselage(beta_app)
 print(f"Fuselage contribution: {x_ac_f_app}")
 
 # printing the cruise conditions to find wing speed dependent variable (from graph)
-print(f"GRAPH VALUES: Beta * A: {beta_app * A}, taper: {taper}, Lambda_Beta: {(np.atan2(np.tan(sweep), beta_app)) * (180/np.pi)}")
-x_ac_w_app = 0.445  # wing contribution
+print(f"GRAPH VALUES: Beta * A: {beta_app * A}, taper: {taper}, Lambda_Beta: {(np.atan2(np.tan(Lambda_quarterC), beta_app)) * (180/np.pi)}")
+x_ac_w_app = 0.325  # wing contribution, from the graph with values changed
 print(f"Wing contribution: {x_ac_w_app}")
 
 x_ac_n_app = nacelle_contribution(beta_app)
@@ -133,13 +142,6 @@ print(f"Nacelle contribution: {x_ac_n_app}")
 
 x_ac_app = x_ac_w_app + x_ac_f_app + x_ac_n_app
 print(f"AC of aircraft less tail: {x_ac_app}")
-
-'''TO DO:
-- GEOMETRIC PARAMETERS: l_fn, b_n, l_n
-- SPEED PARAMETERS: V_app, M_app, beta_app
-^ for M_app the approach altitude is needed
-'''
-
 
 # ============================================================
 # ADDITIONAL INPUTS  (fill in your values)
