@@ -26,7 +26,7 @@ b = cc.b
 SM     = 0.05          # Required stability margin (fraction of MAC, e.g. 5%)
 CL_ah  = 4.6793850598197535           # Lift curve slope of the horizontal tail (1/rad)
 CL_aAh = 6.423476455793314           # Lift curve slope of the aircraft-less-tail (1/rad)
-de_da  = 0.33297873068133915          # Downwash gradient (dε/dα)
+de_da  = cc.downwash(cc.beta_cr)          # Downwash gradient (dε/dα)
  
 # Controllability Parameters (Approach/landing — flaps fully extended)
 CL_Ah = (2 * MTOW * g) / (rho_app * V_app**2 * S) # Lift coefficient of aircraft-less-tail at minimum approach speed
