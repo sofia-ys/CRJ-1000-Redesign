@@ -3,7 +3,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import math as m
-import controllability_coeffs as cc 
+from controllability_coeffs import *
 
 # ==========================================
 # INPUT VARIABLES (Replace with your data)
@@ -12,7 +12,7 @@ import controllability_coeffs as cc
 
 # General Parameters
 mac = 4.11  # MAC
-l_h = 16.06566495  # distance from tail AC to Wing AC
+l_h = 16.40  # distance from tail AC to Wing AC, value changed, from technical drawing
 lh_c = l_h/mac         # Tail moment arm normalized by MAC
 Vh_V = 1        # Tail speed ratio (Vh / V)
 V_app = 72.022  # approach speed [m/s]
@@ -20,24 +20,23 @@ MTOW    = 38995 # [kg]   maximum take-off weight (conservative for approach sizi
 rho_app = 1.225   # [kg/m³] ISA sea-level density at approach altitude
 g       = 9.80665   # [m/s²]
 S = 77.39 # total wing area [m^2]
-b = cc.b
 
 # Stability Parameters (Cruise Condition)
 SM     = 0.05          # Required stability margin (fraction of MAC, e.g. 5%)
-CL_ah  = 4.6793850598197535           # Lift curve slope of the horizontal tail (1/rad)
-CL_aAh = 6.423476455793314           # Lift curve slope of the aircraft-less-tail (1/rad)
-de_da  = cc.downwash(cc.beta_cr)          # Downwash gradient (dε/dα)
+CL_ah  = lift_rate_coef(A_h, beta_app, eta_h, Lambda_halfC_h)           # Lift curve slope of the horizontal tail (1/rad)
+CL_aAh, _ = lift_rate_aircraft_less_tail(beta_cr)           # Lift curve slope of the aircraft-less-tail (1/rad)
+de_da  = downwash(beta_cr)          # Downwash gradient (dε/dα)
  
 # Controllability Parameters (Approach/landing — flaps fully extended)
 CL_Ah = (2 * MTOW * g) / (rho_app * V_app**2 * S) # Lift coefficient of aircraft-less-tail at minimum approach speed
 CL_h   = -0.8          # Maximum (negative) lift coefficient the tail can generate
                         # (negative because the tail pushes down to counteract nose-down Cmac)
 #cm_.25/Deltaf_Clmax = 0.385  #The moment coeff. around the quarter chord over Clmax and the flap deflection. For double-slotted flap it's around 0.385
-quarter_chord_sweep = cc.Lambda_quarterC
-halfchordsweep = cc.Lambda_halfC
-taper_ratio = cc.taper
+quarter_chord_sweep = Lambda_quarterC
+halfchordsweep = Lambda_halfC
+taper_ratio = taper
 A_wing = b**2/S
-b_f = cc.b_f
+b_f = b_f
 S_net = S - 14.90 #rough estimate
 
 #nacelle stuff
@@ -46,6 +45,7 @@ l_n = -10.88
 l_fn = 17.09
 h_f = 2.695 #estimate for fuselage height
 
+'''TODO: verify these values, not hardcoded'''
 # Operational CG range (from your loading diagram, fraction of MAC)
 cg_fwd = 0.13419          # Most forward operational CG
 cg_aft = 0.52525          # Most aft operational CG
@@ -91,11 +91,12 @@ x_cg_range = np.linspace(0.0, 1, 200)
 
 mach_num_cruise = 0.82
 
+'''TODO: where does -2.5 come from'''
 CL_a_w_cruise = calculate_CL_a(A_wing, quarter_chord_sweep, mach_num_cruise)
 CL_a_Ah_cruise = calculate_CL_a_Ah(CL_a_w_cruise, b_f, S_net, b, S)
 x_nacelle_cruise = calculate_x_nacelle(-2.5, CL_a_Ah_cruise)
 x_fus_cruise = calculate_x_fus_stab(CL_a_Ah_cruise)
-x_ac_cruise = 0.38 + x_fus_cruise + x_nacelle_cruise
+x_ac_cruise = 0.36 + x_fus_cruise + x_nacelle_cruise
 
 #Cm_nacelle = calculate_cm_nacelle(-2.5, b_n, l_n, S, mac, CL_a_Ah_cruise) #CHANGE THIS LATERRRRRRRRR!!!!!!!!!!!!
 K_stab = (CL_ah / CL_a_Ah_cruise) * (1 - de_da) * lh_c * (Vh_V ** 2)  # used a hardcoded value, changed it to CL_a_Ah_cruise
@@ -130,7 +131,7 @@ flap_deflection = flap_deflection * m.pi/180
 
 ###WING
 mystery_sweep = quarter_chord_sweep
-C_m0_airfoil = cc.Cm0_airfoil
+C_m0_airfoil = Cm0_airfoil
 Cm_ac_w = C_m0_airfoil * (A_wing * m.cos(mystery_sweep)**2/(A_wing + 2*m.cos(mystery_sweep)))
 
 
@@ -147,11 +148,10 @@ CL_a_Ah_lowspeed = calculate_CL_a_Ah(CL_a_w_lowspeed, b_f, S_net, b, S)
 x_nacelle_approach = calculate_x_nacelle(-2.5, CL_a_Ah_lowspeed)
 x_fus_approach = calculate_x_fus_stab(CL_a_Ah_lowspeed)
 
-# Calculate total x_ac for approach using the 0.445 wing contribution
-# i got 0.34 ?
-x_ac_approach = 0.34 + x_fus_approach + x_nacelle_approach
+# Calculate total x_ac for approach using the 0.325 wing contribution, corrected value
+x_ac_approach = 0.325 + x_fus_approach + x_nacelle_approach
 
-l_f = cc.l_fn #fuselage length
+l_f = l_fn #fuselage length
 Cm_fus = -1.8*(1 - 2.5*b_f/l_f) * m.pi*b_f*h_f*l_f/(4*S*mac) * C_L0 / CL_a_Ah_lowspeed
 
 
